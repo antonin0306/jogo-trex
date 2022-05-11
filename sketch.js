@@ -1,3 +1,5 @@
+var jumpSound, checkpointSound, dieSound
+
 var PLAY = 1;
 var END = 0;
 var gameState = PLAY;
@@ -32,6 +34,9 @@ function preload(){
   obstacle6 = loadImage("obstacle6.png");
   
   gameoverImg = loadImage ("gameOver.png")
+  dieSound = loadSound ("die.mp3")
+  jumpSound = loadSound ("jump.mp3")
+  checkpointSound = loadSound ("checkpoint.mp3")
   restartImg = loadImage ("restart.png")
 }
 
@@ -56,8 +61,8 @@ function setup() {
   cloudsGroup = new Group();
   
   console.log("Hello" + 5);
-  trex.setCollider ("circle", 0,0,40)
-  //trex.debug=true
+  trex.setCollider ("rectangle", 0,0,300,trex.height)
+  trex.debug=true
   score = 0;
   gameover = createSprite (300,100)
   gameover.addImage (gameoverImg)
@@ -68,7 +73,7 @@ function setup() {
   restart.addImage (restartImg)
   restart.scale = 0.5;
   restart.visible = false
-
+  
 }
 
 function draw() {
@@ -79,17 +84,24 @@ function draw() {
     //mover o solo
     ground.velocityX = -4;
     score = score + Math.round(frameCount/60);
+    if (score>0 && score%500==0) {
+      checkpointSound.play ()
+    }
     if (ground.x < 0){
       ground.x = ground.width/2;
     }
     if(keyDown("space")&& trex.y >= 100) {
       trex.velocityY = -13;
+      jumpSound.play ()
     }
     trex.velocityY = trex.velocityY + 0.8
     spawnObstacles();
     spawnClouds();
-    if (obstaclesGroup.isTouching (trex))
-    gameState = END;
+    if (obstaclesGroup.isTouching (trex)){ 
+      //gameState = END;
+      trex.velocityY =  -13;
+      jumpSound.play()
+    }
   }
   else if(gameState === END){
     //parar o solo
@@ -120,7 +132,7 @@ function draw() {
 function spawnObstacles(){
  if (frameCount % 60 === 0){
    var obstacle = createSprite(600,165,10,40);
-   obstacle.velocityX = -6;
+   obstacle.velocityX = -(6+score/200);
 
    
     // //gerar obstáculos aleatórios
