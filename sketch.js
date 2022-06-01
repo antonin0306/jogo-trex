@@ -61,7 +61,7 @@ function setup() {
   cloudsGroup = new Group();
   
   console.log("Hello" + 5);
-  trex.setCollider ("rectangle", 0,0,300,trex.height)
+  trex.setCollider ("rectangle", 0,0,trex.width,trex.height)
   trex.debug=true
   score = 0;
   gameover = createSprite (300,100)
@@ -83,7 +83,7 @@ function draw() {
   if(gameState === PLAY){
     //mover o solo
     ground.velocityX = -4;
-    score = score + Math.round(frameCount/60);
+    score = score + Math.round(getFrameRate()/60);
     if (score>0 && score%500==0) {
       checkpointSound.play ()
     }
@@ -98,9 +98,9 @@ function draw() {
     spawnObstacles();
     spawnClouds();
     if (obstaclesGroup.isTouching (trex)){ 
-      //gameState = END;
-      trex.velocityY =  -13;
-      jumpSound.play()
+      gameState = END;
+      //trex.velocityY =  -13;
+      //jumpSound.play()
     }
   }
   else if(gameState === END){
@@ -125,10 +125,20 @@ function draw() {
   //gere as nuvens
   
   //gere obstáculos no solo
-  
+  if(mousePressedOver(restart)) {
+    reset()
+  }
   drawSprites();
 }
-
+function reset () {
+gameState = PLAY
+gameover.visible = false
+restart.visible = false
+score = 0
+obstaclesGroup.destroyEach ()
+cloudsGroup.destroyEach()
+trex.changeAnimation ("running",trex_running)
+}
 function spawnObstacles(){
  if (frameCount % 60 === 0){
    var obstacle = createSprite(600,165,10,40);
